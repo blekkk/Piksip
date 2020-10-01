@@ -8,6 +8,8 @@ const config = {
     channelSecret: process.env.CHANNEL_SECRET.toString(),
 };
 
+console.log(config);
+
 const client = new line.Client(config);
 const app = express();
 const pixiv = new PixivApi();
@@ -24,6 +26,16 @@ const password = process.env.PIXIV_PASS;
 //     console.log(err);
 // });
 
+app.post("/callback", line.middleware(config), (req, res) => {
+  Promise.all(req.body.events.map(handleEvent))
+    .then((result) => res.json(result))
+    .catch((err) => {
+      console.error({
+        errorRoutesWebHook: err,
+      });
+    });
+});
+
 const handleEvent = (event) => {
     console.log(event);
     if (event.type !== "message" || event.message.type !== "text") {
@@ -32,7 +44,7 @@ const handleEvent = (event) => {
 
     if (event.message.type === "text") {
         if (event.message.text.toLowerCase() === "help") {
-            client.replyMessage(event.replyToken, {
+            return client.replyMessage(event.replyToken, {
                 type: "text",
                 text: "Brooo",
                 quickReply: {
@@ -59,16 +71,6 @@ const handleEvent = (event) => {
         };
     };
 };
-
-app.post("/webhook", line.middleware(config), (req, res) => {
-  Promise.all(req.body.events.map(handleEvent))
-    .then((result) => res.json(result))
-    .catch((err) => {
-      console.error({
-        errorRoutesWebHook: err,
-      });
-    });
-});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
