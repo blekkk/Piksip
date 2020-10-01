@@ -8,14 +8,12 @@ const config = {
     channelSecret: process.env.CHANNEL_SECRET.toString(),
 };
 
-console.log(config);
-
 const client = new line.Client(config);
 const app = express();
-const pixiv = new PixivApi();
+// const pixiv = new PixivApi();
 
-const username = process.env.PIXIV_USERNAME;
-const password = process.env.PIXIV_PASS;
+// const username = process.env.PIXIV_USERNAME;
+// const password = process.env.PIXIV_PASS;
 
 // pixiv.login(username, password, true).then(() => {
 //     return pixiv.searchIllust('女の子').then(results => {
@@ -26,7 +24,7 @@ const password = process.env.PIXIV_PASS;
 //     console.log(err);
 // });
 
-app.post("/callback", line.middleware(config), (req, res) => {
+app.post("/webhook", line.middleware(config), (req, res) => {
   Promise.all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
     .catch((err) => {
